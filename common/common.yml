@@ -1,0 +1,62 @@
+version: "3"
+services:
+  openldap:
+    image: osixia/openldap:latest
+    environment:
+      - LDAP_ADMIN_PASSWORD
+      - LDAP_DOMAIN
+      - LDAP_ORGANISATION
+      - TZ
+    networks:
+      - public
+    volumes:
+      - openldap_config:/etc/ldap/slapd.d
+      - openldap_data:/var/lib/ldap
+    deploy:
+      placement:
+        constraints:
+          - node.labels.primary == true
+
+  postgres:
+    image: postgres:latest
+    environment:
+      - POSTGRES_PASSWORD
+      - TZ
+    networks:
+      - public
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    deploy:
+      placement:
+        constraints:
+          - node.labels.primary == true
+
+  redis:
+    image: redis:latest
+    environment:
+      - TZ
+    networks:
+      - public
+    volumes:
+      - redis_data:/data
+    deploy:
+      placement:
+        constraints:
+          - node.labels.primary == true
+
+networks:
+  public:
+    external: true
+
+volumes:
+  openldap_config:
+    driver: local
+
+  openldap_data:
+    driver: local
+
+  postgres_data:
+    driver: local
+
+  redis_data:
+    driver: local
